@@ -286,7 +286,7 @@ def ssh(command=None, login_to_bosh=True, quiet=False):
 			session.login(host, username='ubuntu', ssh_key=keyfile.name, quiet=True)
 	else:
 		print_if('Logging in with using a username and password...')
-		session.login(host, username='ubuntu', 
+		session.login(host, username='ubuntu',
 					  password=creds.get('opsmgr').get('password'), quiet=True)
 
 	if login_to_bosh:
@@ -300,7 +300,7 @@ def ssh(command=None, login_to_bosh=True, quiet=False):
 			director_address = director_manifest['instance_groups'][0]['properties']['director']['address']
 		session.sendline('export BOSH_ENVIRONMENT="{}"'.format(director_address))
 		session.sendline('export BOSH_CA_CERT="/var/tempest/workspaces/default/root_ca_certificate"')
-		
+
 		bosh2_username = director_creds['credential']['value']['identity']
 		print_if('Logging into bosh2 as %s...' % bosh2_username)
 		session.sendline('which bosh2 || alias bosh2=bosh') # In Ops Manager 2.0+, there is just bosh (which is v2).
@@ -311,7 +311,7 @@ def ssh(command=None, login_to_bosh=True, quiet=False):
 		session.expect(bosh2_password_prompt, timeout=prompt_wait_timeout)
 		session.send(director_creds['credential']['value']['password'])
 		session.sendcontrol('m') # For some reason bosh2 login requires to send enter manually
-	
+
 	if command:
 		session.sync_original_prompt()
 		print_if('Sending command: "%s"...' % command)
@@ -403,6 +403,13 @@ def configure(product, properties, strict=False, skip_validation=False, network=
 			stemcell = cf[0]['stemcell']
 		elif 'stemcells' in cf[0]:
 			stemcell = cf[0]['stemcells'][0]
+		elif 'stemcell_ids' in cf[0]:
+			idx = int(cf[0]['stemcell_ids'][0])
+			stemcells = get_stemcells()
+			stemcell = {
+					'name': stemcells[idx]['os'],
+					'version': stemcells[idx]['version'],
+			}
 		else:
 			raise Exception("Cannot find cf stemcell to use")
 		print('- Using stemcell', stemcell['name'], 'version', stemcell['version'])
