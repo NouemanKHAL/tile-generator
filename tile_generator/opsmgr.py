@@ -404,7 +404,7 @@ def configure(product, properties, strict=False, skip_validation=False, network=
 		elif 'stemcells' in cf[0]:
 			stemcell = cf[0]['stemcells'][0]
 		elif 'stemcell_ids' in cf[0]:
-			idx = int(cf[0]['stemcell_ids'][0])
+			idx = max(0, int(cf[0]['stemcell_ids'][0]) - 1)
 			stemcells = get_stemcells()
 			stemcell = {
 					'name': stemcells[idx]['os'],
